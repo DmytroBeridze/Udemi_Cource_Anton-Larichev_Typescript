@@ -8,6 +8,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __classPrivateFieldSet = (this && this.__classPrivateFieldSet) || function (receiver, state, value, kind, f) {
+    if (kind === "m") throw new TypeError("Private method is not writable");
+    if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a setter");
+    if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot write private member to an object whose class did not declare it");
+    return (kind === "a" ? f.call(receiver, value) : f ? f.value = value : state.set(receiver, value)), value;
+};
+var _Vehicle_price;
 class UserClass {
     constructor(name) {
         this.name = name;
@@ -214,3 +221,148 @@ class HttpError extends Error {
 }
 console.log(new HttpError("Not found", 404).message);
 console.log(new HttpError("Not found", 404).code);
+// ------------Composition and Inheritance
+/*
+  1.Inheritance — наследование: позволяет создавать новые классы на основе
+  существующих, чтобы разделить иерархии и повторно использовать функциональность.
+  2 .Composition — композиция: предполагает создание сложных объектов за счёт включения
+объектов других классов вместо наследования. */
+// наследование
+class UserIn {
+    constructor(name) {
+        this.name = name;
+    }
+}
+class UsersInher extends Array {
+    findByName(name) {
+        return this.filter((elem) => elem.name === name);
+    }
+    toString() {
+        return this.map((elem) => elem.name).join(". ");
+    }
+}
+const usersInher = new UsersInher();
+usersInher.push(new UserIn("Dimon"));
+usersInher.push(new UserIn("Qubiq"));
+console.log(usersInher.toString());
+// композиция
+class UserCompos {
+    constructor(name) {
+        this.name = name;
+    }
+}
+class UsersCompos {
+    constructor() {
+        this.users = [];
+    }
+    addUsers(user) {
+        this.users.push(user);
+    }
+}
+const usersCompos = new UsersCompos();
+usersCompos.addUsers(new UserCompos("Remark"));
+console.log(usersCompos);
+class UserPay {
+}
+class UserWithPay {
+    constructor(name, payment) {
+        this.name = name;
+        this.payment = payment;
+    }
+}
+// ---------------
+class PayMent {
+    constructor(date) {
+        this.date = date;
+    }
+}
+class UserP {
+    constructor(name, payment) {
+        this.name = name;
+        this.payment = payment;
+    }
+}
+const dt = new Date();
+const userP = new UserP("Dimon", new PayMent(dt));
+console.log(userP);
+//TODO------ видимость свойств: Public, Protected, Privat, Readonly
+class Vehicle {
+    constructor() {
+        _Vehicle_price.set(this, void 0); //тоже приватное свойство . Объявляется так же, как в JS и работает в JS
+    }
+    addDamage(val) {
+        this.damages.push(val);
+        __classPrivateFieldSet(this, _Vehicle_price, 1000, "f");
+    }
+    set model(val) {
+        this._model = val;
+    }
+    get model() {
+        return this.model;
+    }
+}
+_Vehicle_price = new WeakMap();
+class Eurotrack extends Vehicle {
+    setRun(km) {
+        this.run = km / 0.62;
+    }
+}
+const vehicle = new Vehicle();
+// product class
+class Product {
+    constructor(id, name, price) {
+        this.id = id;
+        this.name = name;
+        this.price = price;
+    }
+}
+// cart class
+class Cart {
+    constructor() {
+        this.cart = [];
+        this.delivery = null;
+    }
+    // add
+    addProducts(product) {
+        this.cart.push(product);
+    }
+    // delete
+    deleteProducts(id) {
+        const check = this.cart.findIndex((elem) => elem.id === id);
+        if (check != -1) {
+            this.cart = this.cart.filter((elem) => elem.id !== id);
+        }
+        else
+            console.log("Not element");
+    }
+    // quantity
+    allPrice() {
+        return this.cart.reduce((acc, curr) => (acc += curr.price), 0);
+    }
+    // set delivery
+    setDelivery(data) {
+        this.delivery = data;
+    }
+    //checkout
+    productsCheckout() {
+        if (this.cart.length === 0) {
+            throw new Error("Empty cart");
+        }
+        if (!this.delivery) {
+            throw new Error("No delivery address");
+        }
+        return { success: true };
+    }
+}
+const cart = new Cart();
+// cart.addProducts(new Product(1, "Dimon", 23));
+// cart.addProducts(new Product(2, "Qubiq", 50));
+// cart.addProducts(new Product(3, "Erich Maria Remarque", 50));
+cart.deleteProducts(2);
+let dta = new Date();
+cart.setDelivery({ date: dta, address: "address" });
+// cart.setDelivery({ date: dta, id: 456 });
+console.log(cart);
+const allProductPrice = cart.allPrice();
+console.log(allProductPrice);
+console.log(cart.productsCheckout());

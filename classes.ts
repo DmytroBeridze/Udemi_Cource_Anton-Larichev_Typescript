@@ -287,3 +287,201 @@ class HttpError extends Error {
 }
 console.log(new HttpError("Not found", 404).message);
 console.log(new HttpError("Not found", 404).code);
+
+// ------------Composition and Inheritance
+/*
+  1.Inheritance — наследование: позволяет создавать новые классы на основе 
+  существующих, чтобы разделить иерархии и повторно использовать функциональность.
+  2 .Composition — композиция: предполагает создание сложных объектов за счёт включения 
+объектов других классов вместо наследования. */
+
+// наследование
+class UserIn {
+  name: string;
+  constructor(name: string) {
+    this.name = name;
+  }
+}
+
+class UsersInher extends Array<UserIn> {
+  findByName(name: string) {
+    return this.filter((elem) => elem.name === name);
+  }
+  override toString(): string {
+    return this.map((elem) => elem.name).join(". ");
+  }
+}
+
+const usersInher = new UsersInher();
+usersInher.push(new UserIn("Dimon"));
+usersInher.push(new UserIn("Qubiq"));
+console.log(usersInher.toString());
+
+// композиция
+class UserCompos {
+  name: string;
+  constructor(name: string) {
+    this.name = name;
+  }
+}
+
+class UsersCompos {
+  users: UserCompos[] = [];
+
+  addUsers(user: UserCompos) {
+    this.users.push(user);
+  }
+}
+
+const usersCompos = new UsersCompos();
+usersCompos.addUsers(new UserCompos("Remark"));
+console.log(usersCompos);
+
+class UserPay {
+  date: Date;
+}
+
+class UserWithPay {
+  name: string;
+  payment: UserPay;
+
+  constructor(name: string, payment: UserPay) {
+    this.name = name;
+    this.payment = payment;
+  }
+}
+
+// ---------------
+
+class PayMent {
+  date: Date;
+  constructor(date: Date) {
+    this.date = date;
+  }
+}
+
+class UserP {
+  name: string;
+  payment: PayMent;
+
+  constructor(name: string, payment: PayMent) {
+    this.name = name;
+    this.payment = payment;
+  }
+}
+
+const dt = new Date();
+
+const userP = new UserP("Dimon", new PayMent(dt));
+console.log(userP);
+
+//TODO------ видимость свойств: Public, Protected, Privat, Readonly
+
+class Vehicle {
+  public make: string;
+  private damages: string[]; //не доступен в расширяемом классе и извне
+  private _model: string; //не доступен в расширяемом классе и извне
+  protected run: number; // доступен в расширяемом классе
+
+  #price: number; //тоже приватное свойство . Объявляется так же, как в JS и работает в JS
+
+  public addDamage(val: string) {
+    this.damages.push(val);
+    this.#price = 1000;
+  }
+
+  set model(val: string) {
+    this._model = val;
+  }
+
+  get model() {
+    return this.model;
+  }
+}
+
+class Eurotrack extends Vehicle {
+  setRun(km: number) {
+    this.run = km / 0.62;
+  }
+}
+
+const vehicle = new Vehicle();
+
+// -----------------------Упражнение 4
+
+interface ProductsInterface {
+  id: number;
+  name: string;
+  price: number;
+}
+
+interface HomeDelivery {
+  date: Date;
+  address: string;
+}
+
+interface PointDelivery {
+  date: Date;
+  id: number;
+}
+// product class
+class Product implements ProductsInterface {
+  id: number;
+  name: string;
+  price: number;
+  constructor(id: number, name: string, price: number) {
+    this.id = id;
+    this.name = name;
+    this.price = price;
+  }
+}
+// cart class
+class Cart {
+  private cart: Product[] = [];
+  private delivery: HomeDelivery | PointDelivery | null = null;
+  // add
+  addProducts(product: Product): void {
+    this.cart.push(product);
+  }
+  // delete
+  deleteProducts(id: number): void {
+    const check = this.cart.findIndex((elem) => elem.id === id);
+    if (check != -1) {
+      this.cart = this.cart.filter((elem) => elem.id !== id);
+    } else console.log("Not element");
+  }
+  // quantity
+  allPrice(): number {
+    return this.cart.reduce((acc, curr) => (acc += curr.price), 0);
+  }
+  // set delivery
+  setDelivery(data: HomeDelivery | PointDelivery) {
+    this.delivery = data;
+  }
+  //checkout
+
+  productsCheckout() {
+    if (this.cart.length === 0) {
+      throw new Error("Empty cart");
+    }
+
+    if (!this.delivery) {
+      throw new Error("No delivery address");
+    }
+    return { success: true };
+  }
+}
+const cart = new Cart();
+cart.addProducts(new Product(1, "Dimon", 23));
+cart.addProducts(new Product(2, "Qubiq", 50));
+cart.addProducts(new Product(3, "Erich Maria Remarque", 50));
+cart.deleteProducts(2);
+
+let dta = new Date();
+cart.setDelivery({ date: dta, address: "address" });
+// cart.setDelivery({ date: dta, id: 456 });
+console.log(cart);
+
+const allProductPrice = cart.allPrice();
+console.log(allProductPrice);
+console.log(cart.productsCheckout());
