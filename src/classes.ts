@@ -50,6 +50,30 @@ const userConstr3 = new UserConstr(33);
 const userConstr4 = new UserConstr("Dimon");
 console.log(userConstr4);
 
+// -------
+class Test {
+  name: string = "";
+  age: number = 0;
+
+  constructor();
+  constructor(name: string);
+  constructor(age: number);
+  constructor(name: string, age: number);
+  constructor(params?: string | number, age?: number) {
+    if (typeof params === "string") {
+      this.name = params;
+
+      if (typeof age === "number") {
+        this.age = age;
+      }
+    } else if (typeof params === "number") {
+      this.age = params;
+    }
+  }
+}
+const test = new Test(2.5);
+console.log(test);
+
 // TODO-------------Methods
 
 enum StatusM {
@@ -485,3 +509,137 @@ console.log(cart);
 const allProductPrice = cart.allPrice();
 console.log(allProductPrice);
 console.log(cart.productsCheckout());
+
+// TODO-----Static
+class UserService {
+  static db: any = 12;
+  static getUserById(id: number) {
+    return this.db.findById(id);
+  }
+  create() {
+    return UserService.db;
+  }
+  // статический блок
+  //в этом блоке код срабатывает сразу при инициализации класса
+  static {
+    UserService.db = "статический блок";
+  }
+}
+UserService.db;
+const userService = new UserService();
+// console.log(userService.create());
+console.log(UserService);
+
+//TODO-работа с-this
+class PaymenrThis {
+  private date: Date = new Date();
+
+  getDate(this: PaymenrThis) {
+    //чтобы не терялся контекст при вызове этой ф-ции в другом объекте
+    return this.date;
+  }
+
+  // стрелочный метод всегда сохраняет контекст
+  arrowGetDate = () => this.date;
+}
+const paymentThis = new PaymenrThis();
+console.log(paymentThis.getDate());
+
+const userThis = {
+  id: 1,
+  paymentDate: paymentThis.getDate, //теняется контекст. This в этом случае-userThis
+  paymentDate2: paymentThis.getDate.bind(paymentThis),
+  // paymentDate2: paymentThis.getDate.bind(paymentThis),
+
+  arrowDate: paymentThis.arrowGetDate,
+};
+
+console.log(userThis.paymentDate2());
+console.log(userThis.arrowDate());
+
+// -----случай когда стрелочный метод не будет работать
+
+class PaymentPersistent extends PaymenrThis {
+  save() {
+    // return super.getDate();
+    // return super.arrowGetDate();//не будет работать, потому что стрелочной ф-ции нет в прототипе класса
+    return this.arrowGetDate(); // а так будет
+  }
+}
+
+console.log(new PaymentPersistent().save()); // работает
+
+// TODO--типизация this
+
+class UserBuilder {
+  name: string;
+  setName(val: string): this {
+    this.name = val;
+    return this;
+  }
+
+  isAdmin(): this is AdminBuilder {
+    return this instanceof AdminBuilder;
+  }
+}
+class AdminBuilder extends UserBuilder {
+  roles: string[];
+}
+
+// const userBuilder = new UserBuilder();
+// console.log(userBuilder.setName("Qubiq"));
+
+// const adminBuilder = new AdminBuilder();
+// console.log(adminBuilder.setName("Dimon"));
+
+let userT: AdminBuilder | UserBuilder = new UserBuilder();
+
+if (userT.isAdmin()) {
+  console.log(userT);
+} else console.log(userT);
+// -----------
+class MainClass {
+  name: string = "Dimon";
+  age: number = 45;
+
+  fullData(): string {
+    return `${this.name} ${this.age}`;
+  }
+
+  getClass(): this is ExtendMainClass {
+    return this instanceof ExtendMainClass;
+  }
+}
+
+class ExtendMainClass extends MainClass {
+  role: string = "admin";
+}
+
+const childObj = new MainClass();
+if (childObj.getClass()) {
+  console.log("ExtendMainClass", childObj);
+} else console.log("MainClass", childObj);
+
+// TODO---abstract class
+
+abstract class Controller {
+  abstract handle(req: any): void;
+
+  handleWithLogs(req: any) {
+    console.log("Start");
+    this.handle(req);
+    console.log("End");
+  }
+}
+
+// new Controller() // ERROR
+
+class UserController extends Controller {
+  handle(req: any): void {
+    console.log(req);
+  }
+}
+
+const userController = new UserController();
+userController.handle("qwerty");
+userController.handleWithLogs("test");

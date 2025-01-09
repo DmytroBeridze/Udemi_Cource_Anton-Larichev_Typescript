@@ -1,14 +1,5 @@
 "use strict";
 // -----------------использование
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 let revenue = 1000;
 let bonus = 500;
 let c = "str";
@@ -116,15 +107,13 @@ var Statuses;
     Statuses["Draft"] = "draft";
     Statuses["Deleted"] = "deleted";
 })(Statuses || (Statuses = {}));
-function getFacs(param) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const resp = yield fetch("/test", {
-            method: "POST",
-            body: JSON.stringify(param),
-        });
-        const data = yield resp.json();
-        return data;
+async function getFacs(param) {
+    const resp = await fetch("/test", {
+        method: "POST",
+        body: JSON.stringify(param),
     });
+    const data = await resp.json();
+    return data;
 }
 //TODO -----Union
 const myUn = [1, "atrind"];
@@ -248,20 +237,18 @@ var Status;
     Status["SUCCESS"] = "success";
     Status["FAILED"] = "failed";
 })(Status || (Status = {}));
-function fetchExercize3(val) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const response = yield fetch("http", {
-            method: "POST",
-            body: JSON.stringify(val),
-            headers: { "Content-Type": "application/json" },
-        });
-        const data = yield response.json();
-        if (data.status === Status.SUCCESS) {
-            return data;
-        }
-        else
-            return data;
+async function fetchExercize3(val) {
+    const response = await fetch("http", {
+        method: "POST",
+        body: JSON.stringify(val),
+        headers: { "Content-Type": "application/json" },
     });
+    const data = await response.json();
+    if (data.status === Status.SUCCESS) {
+        return data;
+    }
+    else
+        return data;
 }
 //TODO-------Void
 function logIdVoid(id) {
@@ -307,17 +294,15 @@ function runUnknown(i) {
 }
 runUnknown(inputUnknown);
 // -----try catch
-function getTestUnknown() {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            yield fetch("http://");
+async function getTestUnknown() {
+    try {
+        await fetch("http://");
+    }
+    catch (error) {
+        if (error instanceof Error) {
+            console.log(error.message);
         }
-        catch (error) {
-            if (error instanceof Error) {
-                console.log(error.message);
-            }
-        }
-    });
+    }
 }
 //TODO -----never
 function generateError(message) {
@@ -400,7 +385,10 @@ const castUser = {
     age: 45,
     email: "qwerty@qwer.qw",
 };
-const castAdmin = Object.assign(Object.assign({}, castUser), { role: 21 });
+const castAdmin = {
+    ...castUser,
+    role: 21,
+};
 console.log(castAdmin);
 // вірне перетворення
 function createNewObj(obj) {

@@ -1,13 +1,4 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __classPrivateFieldSet = (this && this.__classPrivateFieldSet) || function (receiver, state, value, kind, f) {
     if (kind === "m") throw new TypeError("Private method is not writable");
     if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a setter");
@@ -53,6 +44,24 @@ const userConstr2 = new UserConstr();
 const userConstr3 = new UserConstr(33);
 const userConstr4 = new UserConstr("Dimon");
 console.log(userConstr4);
+// -------
+class Test {
+    constructor(params, age) {
+        this.name = "";
+        this.age = 0;
+        if (typeof params === "string") {
+            this.name = params;
+            if (typeof age === "number") {
+                this.age = age;
+            }
+        }
+        else if (typeof params === "number") {
+            this.age = params;
+        }
+    }
+}
+const test = new Test(2.5);
+console.log(test);
 // TODO-------------Methods
 var StatusM;
 (function (StatusM) {
@@ -144,10 +153,8 @@ class UserAcces {
     }
     // акссесоры нельзя делать аинхронными
     // можно только методы
-    setPass(pass) {
-        return __awaiter(this, void 0, void 0, function* () {
-            // какой-то асинхронный код Promise для шифрования пароля
-        });
+    async setPass(pass) {
+        // какой-то асинхронный код Promise для шифрования пароля
     }
 }
 const userAcces = new UserAcces();
@@ -355,9 +362,9 @@ class Cart {
     }
 }
 const cart = new Cart();
-// cart.addProducts(new Product(1, "Dimon", 23));
-// cart.addProducts(new Product(2, "Qubiq", 50));
-// cart.addProducts(new Product(3, "Erich Maria Remarque", 50));
+cart.addProducts(new Product(1, "Dimon", 23));
+cart.addProducts(new Product(2, "Qubiq", 50));
+cart.addProducts(new Product(3, "Erich Maria Remarque", 50));
 cart.deleteProducts(2);
 let dta = new Date();
 cart.setDelivery({ date: dta, address: "address" });
@@ -366,3 +373,118 @@ console.log(cart);
 const allProductPrice = cart.allPrice();
 console.log(allProductPrice);
 console.log(cart.productsCheckout());
+// TODO-----Static
+class UserService {
+    static getUserById(id) {
+        return this.db.findById(id);
+    }
+    create() {
+        return UserService.db;
+    }
+}
+UserService.db = 12;
+// статический блок
+//в этом блоке код срабатывает сразу при инициализации класса
+(() => {
+    UserService.db = "статический блок";
+})();
+UserService.db;
+const userService = new UserService();
+// console.log(userService.create());
+console.log(UserService);
+//TODO-работа с-this
+class PaymenrThis {
+    constructor() {
+        this.date = new Date();
+        // стрелочный метод всегда сохраняет контекст
+        this.arrowGetDate = () => this.date;
+    }
+    getDate() {
+        //чтобы не терялся контекст при вызове этой ф-ции в другом объекте
+        return this.date;
+    }
+}
+const paymentThis = new PaymenrThis();
+console.log(paymentThis.getDate());
+const userThis = {
+    id: 1,
+    paymentDate: paymentThis.getDate, //теняется контекст. This в этом случае-userThis
+    paymentDate2: paymentThis.getDate.bind(paymentThis),
+    // paymentDate2: paymentThis.getDate.bind(paymentThis),
+    arrowDate: paymentThis.arrowGetDate,
+};
+console.log(userThis.paymentDate2());
+console.log(userThis.arrowDate());
+// -----случай когда стрелочный метод не будет работать
+class PaymentPersistent extends PaymenrThis {
+    save() {
+        // return super.getDate();
+        // return super.arrowGetDate();//не будет работать, потому что стрелочной ф-ции нет в прототипе класса
+        return this.arrowGetDate(); // а так будет
+    }
+}
+console.log(new PaymentPersistent().save()); // работает
+// TODO--типизация this
+class UserBuilder {
+    setName(val) {
+        this.name = val;
+        return this;
+    }
+    isAdmin() {
+        return this instanceof AdminBuilder;
+    }
+}
+class AdminBuilder extends UserBuilder {
+}
+// const userBuilder = new UserBuilder();
+// console.log(userBuilder.setName("Qubiq"));
+// const adminBuilder = new AdminBuilder();
+// console.log(adminBuilder.setName("Dimon"));
+let userT = new UserBuilder();
+if (userT.isAdmin()) {
+    console.log(userT);
+}
+else
+    console.log(userT);
+// -----------
+class MainClass {
+    constructor() {
+        this.name = "Dimon";
+        this.age = 45;
+    }
+    fullData() {
+        return `${this.name} ${this.age}`;
+    }
+    getClass() {
+        return this instanceof ExtendMainClass;
+    }
+}
+class ExtendMainClass extends MainClass {
+    constructor() {
+        super(...arguments);
+        this.role = "admin";
+    }
+}
+const childObj = new MainClass();
+if (childObj.getClass()) {
+    console.log("ExtendMainClass", childObj);
+}
+else
+    console.log("MainClass", childObj);
+// TODO---abstract class
+class Controller {
+    handleWithLogs(req) {
+        console.log("Start");
+        this.handle(req);
+        console.log("End");
+    }
+}
+// new Controller() // ERROR
+class UserController extends Controller {
+    handle(req) {
+        console.log(req);
+    }
+}
+const userController = new UserController();
+userController.handle("qwerty");
+userController.handleWithLogs("test");
