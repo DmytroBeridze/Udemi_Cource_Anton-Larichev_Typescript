@@ -432,3 +432,115 @@ type FormValid<T> = {
       }
     | { isValid: false; errorMessage: string };
 };
+
+// TODO задание на декораторы класса
+
+/* 
+Создать декоратор,который добавляет св-во createAt в класс, 
+фиксируя дату создания инстанса  
+*/
+
+interface IUserDec {
+  users: number;
+  getUsersInDatabase(): number;
+}
+
+@userDecServiceDecorator
+class UserDecService implements IUserDec {
+  users: number = 456;
+  getUsersInDatabase(): number {
+    return this.users;
+  }
+}
+
+function userDecServiceDecorator<T extends { new (...args: any[]): {} }>(
+  target: T
+): T {
+  return class extends target {
+    createAt: Date = new Date();
+  };
+}
+
+/* 
+const userDecService = new UserDecService ();  так не видно createAt 
+
+Проблема заключается в том, как TypeScript обрабатывает классы с декораторами. 
+TypeScript проверяет типы на этапе компиляции, а декораторы работают уже на этапе 
+выполнения.
+
+Когда вы добавляете новое свойство через декоратор, оно не становится 
+частью интерфейса класса, поэтому TypeScript не видит это свойство в инстансе.
+
+*/
+
+// дополнительный тип для свойства createAt
+type AdditionalType = {
+  createAt: Date;
+};
+
+const userDecService = new (UserDecService as any)(); //  необходимо явно расширить тип класса внутри декоратора.
+
+const userDecService2 = new UserDecService() as IUserDec & AdditionalType; //правильнее так
+console.log(userDecService2.createAt);
+
+// TODO--задание на декоратор метода. Перехват ошибок
+interface ErrorCatchInterface {
+  name: string;
+  throwMeth(data: number): string;
+}
+
+class ErrorCatchClass implements ErrorCatchInterface {
+  name: string;
+
+  @RethrowError(false)
+  // @ErrorCatchFnc
+  throwMeth(val: number): string {
+    if (val < 1) {
+      throw new Error("New Error Throw");
+    } else return `Ok! ${val}`;
+  }
+}
+
+function RethrowError(val: false | true) {
+  return (
+    target: object,
+    name: string,
+    descriptor: TypedPropertyDescriptor<(...args: any[]) => any>
+  ) => {
+    const oldMethod = descriptor.value;
+    descriptor.value = function (...args: any[]): any {
+      try {
+        return oldMethod?.apply(this, args);
+      } catch (error) {
+        if (error instanceof Error) {
+          if (val) {
+            throw new Error(error.message);
+          }
+
+          console.log(error.message);
+          return `Error in ${name}`;
+        }
+      }
+    };
+  };
+}
+
+// function ErrorCatchFnc(
+//   target: object,
+//   name: string,
+//   descriptor: TypedPropertyDescriptor<(...args: any[]) => any>
+// ) {
+//   const oldValue = descriptor.value;
+//   descriptor.value = function (...args: any[]): any {
+//     try {
+//       return oldValue?.apply(this, args);
+//     } catch (error) {
+//       if (error instanceof Error) {
+//         console.log(error.message);
+//         return `Method ${name} error`;
+//       }
+//     }
+//   };
+// }
+
+console.log(new ErrorCatchClass().throwMeth(-1));

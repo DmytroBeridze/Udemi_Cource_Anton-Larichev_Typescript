@@ -1,5 +1,11 @@
 "use strict";
 //TODO------------задача ИИ на перегрузку функий
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
 let goodsArr = [];
 function goodsGuard(data) {
     return (typeof data === "object" &&
@@ -179,3 +185,76 @@ const formMValidation = {
     name: { isValid: true },
     password: { isValid: false, errorMessage: "Error message" },
 };
+let UserDecService = class UserDecService {
+    constructor() {
+        this.users = 456;
+    }
+    getUsersInDatabase() {
+        return this.users;
+    }
+};
+UserDecService = __decorate([
+    userDecServiceDecorator
+], UserDecService);
+function userDecServiceDecorator(target) {
+    return class extends target {
+        constructor() {
+            super(...arguments);
+            this.createAt = new Date();
+        }
+    };
+}
+const userDecService = new UserDecService(); //  необходимо явно расширить тип класса внутри декоратора.
+const userDecService2 = new UserDecService(); //правильнее так
+console.log(userDecService2.createAt);
+class ErrorCatchClass {
+    // @ErrorCatchFnc
+    throwMeth(val) {
+        if (val < 1) {
+            throw new Error("New Error Throw");
+        }
+        else
+            return `Ok! ${val}`;
+    }
+}
+__decorate([
+    RethrowError(false)
+    // @ErrorCatchFnc
+], ErrorCatchClass.prototype, "throwMeth", null);
+function RethrowError(val) {
+    return (target, name, descriptor) => {
+        const oldMethod = descriptor.value;
+        descriptor.value = function (...args) {
+            try {
+                return oldMethod === null || oldMethod === void 0 ? void 0 : oldMethod.apply(this, args);
+            }
+            catch (error) {
+                if (error instanceof Error) {
+                    if (val) {
+                        throw new Error(error.message);
+                    }
+                    console.log(error.message);
+                    return `Error in ${name}`;
+                }
+            }
+        };
+    };
+}
+// function ErrorCatchFnc(
+//   target: object,
+//   name: string,
+//   descriptor: TypedPropertyDescriptor<(...args: any[]) => any>
+// ) {
+//   const oldValue = descriptor.value;
+//   descriptor.value = function (...args: any[]): any {
+//     try {
+//       return oldValue?.apply(this, args);
+//     } catch (error) {
+//       if (error instanceof Error) {
+//         console.log(error.message);
+//         return `Method ${name} error`;
+//       }
+//     }
+//   };
+// }
+console.log(new ErrorCatchClass().throwMeth(-1));
