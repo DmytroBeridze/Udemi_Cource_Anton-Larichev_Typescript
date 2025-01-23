@@ -142,7 +142,7 @@ class PropertyDecorClass implements PropertyDecorInterface {
 
 function PropertyDecorFunc(maxData: number) {
   return function (target: object, propertyKey: string) {
-    let value: number;
+    let value: number = 0;
 
     const setter = (val: number) => {
       if (val > maxData) {
@@ -157,6 +157,8 @@ function PropertyDecorFunc(maxData: number) {
     Object.defineProperty(target, propertyKey, {
       set: setter,
       get: getter,
+      enumerable: true,
+      configurable: true,
     });
   };
 }
@@ -203,4 +205,27 @@ const decoratorAcces = new DecoratorAccessorClass();
 decoratorAcces.valueAge = 12;
 console.log(decoratorAcces.age);
 
-// TODO --metadata
+// TODO --порядок декораторов
+
+class MuUniClass {
+  @Uni("props")
+  props: any;
+
+  @Uni("static props")
+  static props1: any;
+
+  @Uni("Method")
+  method(val: any) {}
+  static method1(
+    @Uni("parm")
+    val: any
+  ) {}
+  constructor(@Uni("class param") val: any) {}
+}
+
+function Uni(name: string): any {
+  console.log(`Init ${name}`);
+  return function () {
+    console.log(`Call ${name}`);
+  };
+}

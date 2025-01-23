@@ -6,6 +6,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 class UserSer {
     constructor() {
         this.users = 1000;
@@ -109,7 +112,7 @@ __decorate([
 ], PropertyDecorClass.prototype, "users", void 0);
 function PropertyDecorFunc(maxData) {
     return function (target, propertyKey) {
-        let value;
+        let value = 0;
         const setter = (val) => {
             if (val > maxData) {
                 throw new Error(`Data > ${maxData} `);
@@ -123,6 +126,8 @@ function PropertyDecorFunc(maxData) {
         Object.defineProperty(target, propertyKey, {
             set: setter,
             get: getter,
+            enumerable: true,
+            configurable: true,
         });
     };
 }
@@ -154,3 +159,30 @@ function DecoratorAccessorFnc(target, keyProp, descriptor) {
 const decoratorAcces = new DecoratorAccessorClass();
 decoratorAcces.valueAge = 12;
 console.log(decoratorAcces.age);
+// TODO --порядок декораторов
+let MuUniClass = class MuUniClass {
+    method(val) { }
+    static method1(val) { }
+    constructor(val) { }
+};
+__decorate([
+    Uni("props")
+], MuUniClass.prototype, "props", void 0);
+__decorate([
+    Uni("Method")
+], MuUniClass.prototype, "method", null);
+__decorate([
+    Uni("static props")
+], MuUniClass, "props1", void 0);
+__decorate([
+    __param(0, Uni("parm"))
+], MuUniClass, "method1", null);
+MuUniClass = __decorate([
+    __param(0, Uni("class param"))
+], MuUniClass);
+function Uni(name) {
+    console.log(`Init ${name}`);
+    return function () {
+        console.log(`Call ${name}`);
+    };
+}

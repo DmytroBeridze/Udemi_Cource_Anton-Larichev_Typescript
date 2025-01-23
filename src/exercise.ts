@@ -544,3 +544,187 @@ function RethrowError(val: false | true) {
 // }
 
 console.log(new ErrorCatchClass().throwMeth(-1));
+
+// TODO--задание на Factory pattern (ИИ)
+
+enum PersonsType {
+  WARRIOR = "Warrior",
+  ARCHER = "Archer",
+  MAGE = "Mage",
+}
+
+enum PersonsWeapons {
+  SWORD = "sword",
+  BOW = "bow",
+  STICK = "stick",
+}
+
+interface PersonsContract {
+  type: PersonsType;
+  weapon: PersonsWeapons;
+  attack(): string;
+}
+
+// Warrior
+class Warrior implements PersonsContract {
+  type: PersonsType = PersonsType.WARRIOR;
+  weapon: PersonsWeapons = PersonsWeapons.SWORD;
+
+  attack(): string {
+    return `${this.type} attacks with ${this.weapon}`;
+  }
+}
+
+// Archer
+class Archer implements PersonsContract {
+  type: PersonsType = PersonsType.ARCHER;
+  weapon: PersonsWeapons = PersonsWeapons.BOW;
+
+  attack(): string {
+    return `${this.type} attacks with ${this.weapon}`;
+  }
+}
+
+// Mage
+class Mage implements PersonsContract {
+  type: PersonsType = PersonsType.MAGE;
+  weapon: PersonsWeapons = PersonsWeapons.STICK;
+
+  attack(): string {
+    return `${this.type} attacks with ${this.weapon}`;
+  }
+}
+
+class PersonFactory {
+  static create_character(type: PersonsType): PersonsContract {
+    switch (type) {
+      case PersonsType.WARRIOR:
+        return new Warrior();
+      case PersonsType.ARCHER:
+        return new Archer();
+      case PersonsType.MAGE:
+        return new Mage();
+      default:
+        throw new Error("No person!");
+    }
+  }
+}
+
+const archer = PersonFactory.create_character(PersonsType.ARCHER);
+const warrior = PersonFactory.create_character(PersonsType.WARRIOR);
+const mage = PersonFactory.create_character(PersonsType.MAGE);
+console.log(archer.attack());
+console.log(warrior.attack());
+console.log(mage.attack());
+
+// TODO--задание на Singleton pattern (ИИ)
+
+interface LoggerContract {
+  message: string;
+  log(): void;
+  setMessage(val: string): void;
+}
+
+class LoggerClass implements LoggerContract {
+  message: string;
+
+  static instance: LoggerContract;
+  private constructor() {}
+
+  log(): void {
+    console.log(this.message);
+  }
+
+  setMessage(val: string) {
+    this.message = val;
+  }
+
+  static getInstance(): LoggerContract {
+    if (!LoggerClass.instance) {
+      LoggerClass.instance = new LoggerClass();
+    }
+    return LoggerClass.instance;
+  }
+}
+
+const firstTest = LoggerClass.getInstance();
+const firstTest2 = LoggerClass.getInstance();
+firstTest.setMessage("Some message");
+firstTest.log();
+
+firstTest2.log();
+firstTest2.setMessage("Another message");
+
+firstTest.log();
+firstTest2.log();
+
+// -----------------задание на Singleton pattern (ИИ)
+
+type PropType = string | number | boolean;
+type PropsType = { [key: string]: PropType };
+
+interface ConfigurationContract {
+  props: PropsType;
+  get(val: string): PropType;
+  set(value: string, data: any): void;
+  load(url: string): Promise<any>;
+}
+
+class Configuration implements ConfigurationContract {
+  props: PropsType = {};
+
+  private static instance: Configuration;
+  private constructor() {}
+
+  // get
+  get(val: string): PropType {
+    if (this.props && val in this.props) {
+      return this.props[val];
+    }
+    throw new Error("No this prop");
+  }
+  // set
+  set(value: string, data: PropType) {
+    {
+      this.props[value] = data;
+    }
+  }
+  // load
+  async load(url: string): Promise<any> {
+    try {
+      const responce = await fetch(url, {
+        method: "GET",
+      });
+
+      if (responce.ok) {
+        const data = await responce.json();
+        this.props = data;
+        return data;
+      } else throw new Error("Bad request");
+    } catch (error) {
+      if (error instanceof Error) {
+        console.log(error.message);
+      }
+    }
+  }
+
+  // create instance
+  static getInstance(): ConfigurationContract {
+    if (!Configuration.instance) {
+      Configuration.instance = new Configuration();
+    }
+    return Configuration.instance;
+  }
+}
+const tess = Configuration.getInstance();
+tess.set("width", 10);
+console.log(tess);
+console.log(tess.get("width"));
+tess.set("width", 11);
+console.log(tess.get("width"));
+const tess2 = Configuration.getInstance();
+tess2.set("height", 30);
+
+console.log(tess2.get("width"));
+console.log(tess.get("height"));
+console.log(tess2.get("height"));

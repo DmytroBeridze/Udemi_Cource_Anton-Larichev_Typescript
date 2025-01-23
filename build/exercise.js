@@ -258,3 +258,145 @@ function RethrowError(val) {
 //   };
 // }
 console.log(new ErrorCatchClass().throwMeth(-1));
+// TODO--задание на Factory pattern (ИИ)
+var PersonsType;
+(function (PersonsType) {
+    PersonsType["WARRIOR"] = "Warrior";
+    PersonsType["ARCHER"] = "Archer";
+    PersonsType["MAGE"] = "Mage";
+})(PersonsType || (PersonsType = {}));
+var PersonsWeapons;
+(function (PersonsWeapons) {
+    PersonsWeapons["SWORD"] = "sword";
+    PersonsWeapons["BOW"] = "bow";
+    PersonsWeapons["STICK"] = "stick";
+})(PersonsWeapons || (PersonsWeapons = {}));
+// Warrior
+class Warrior {
+    constructor() {
+        this.type = PersonsType.WARRIOR;
+        this.weapon = PersonsWeapons.SWORD;
+    }
+    attack() {
+        return `${this.type} attacks with ${this.weapon}`;
+    }
+}
+// Archer
+class Archer {
+    constructor() {
+        this.type = PersonsType.ARCHER;
+        this.weapon = PersonsWeapons.BOW;
+    }
+    attack() {
+        return `${this.type} attacks with ${this.weapon}`;
+    }
+}
+// Mage
+class Mage {
+    constructor() {
+        this.type = PersonsType.MAGE;
+        this.weapon = PersonsWeapons.STICK;
+    }
+    attack() {
+        return `${this.type} attacks with ${this.weapon}`;
+    }
+}
+class PersonFactory {
+    static create_character(type) {
+        switch (type) {
+            case PersonsType.WARRIOR:
+                return new Warrior();
+            case PersonsType.ARCHER:
+                return new Archer();
+            case PersonsType.MAGE:
+                return new Mage();
+            default:
+                throw new Error("No person!");
+        }
+    }
+}
+const archer = PersonFactory.create_character(PersonsType.ARCHER);
+const warrior = PersonFactory.create_character(PersonsType.WARRIOR);
+const mage = PersonFactory.create_character(PersonsType.MAGE);
+console.log(archer.attack());
+console.log(warrior.attack());
+console.log(mage.attack());
+class LoggerClass {
+    constructor() { }
+    log() {
+        console.log(this.message);
+    }
+    setMessage(val) {
+        this.message = val;
+    }
+    static getInstance() {
+        if (!LoggerClass.instance) {
+            LoggerClass.instance = new LoggerClass();
+        }
+        return LoggerClass.instance;
+    }
+}
+const firstTest = LoggerClass.getInstance();
+const firstTest2 = LoggerClass.getInstance();
+firstTest.setMessage("Some message");
+firstTest.log();
+firstTest2.log();
+firstTest2.setMessage("Another message");
+firstTest.log();
+firstTest2.log();
+class Configuration {
+    constructor() {
+        this.props = {};
+    }
+    // get
+    get(val) {
+        if (this.props && val in this.props) {
+            return this.props[val];
+        }
+        throw new Error("No this prop");
+    }
+    // set
+    set(value, data) {
+        {
+            this.props[value] = data;
+        }
+    }
+    // load
+    async load(url) {
+        try {
+            const responce = await fetch(url, {
+                method: "GET",
+            });
+            if (responce.ok) {
+                const data = await responce.json();
+                this.props = data;
+                return data;
+            }
+            else
+                throw new Error("Bad request");
+        }
+        catch (error) {
+            if (error instanceof Error) {
+                console.log(error.message);
+            }
+        }
+    }
+    // create instance
+    static getInstance() {
+        if (!Configuration.instance) {
+            Configuration.instance = new Configuration();
+        }
+        return Configuration.instance;
+    }
+}
+const tess = Configuration.getInstance();
+tess.set("width", 10);
+console.log(tess);
+console.log(tess.get("width"));
+tess.set("width", 11);
+console.log(tess.get("width"));
+const tess2 = Configuration.getInstance();
+tess2.set("height", 30);
+console.log(tess2.get("width"));
+console.log(tess.get("height"));
+console.log(tess2.get("height"));
