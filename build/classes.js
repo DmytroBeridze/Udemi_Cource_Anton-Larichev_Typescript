@@ -223,7 +223,7 @@ new Error("");
 class HttpError extends Error {
     constructor(message, code) {
         super(message);
-        this.code = code !== null && code !== void 0 ? code : 500;
+        this.code = code ?? 500;
     }
 }
 console.log(new HttpError("Not found", 404).message);

@@ -97,9 +97,8 @@ const arrayData = [
 function dataGroup(arr, key) {
     let newMap = new Map();
     arr.forEach((elem) => {
-        var _a;
         if (newMap.has(elem[key])) {
-            newMap.set(elem[key], [...((_a = newMap.get(elem[key])) !== null && _a !== void 0 ? _a : []), elem]);
+            newMap.set(elem[key], [...(newMap.get(elem[key]) ?? []), elem]);
         }
         else
             newMap.set(elem[key], [elem]);
@@ -226,7 +225,7 @@ function RethrowError(val) {
         const oldMethod = descriptor.value;
         descriptor.value = function (...args) {
             try {
-                return oldMethod === null || oldMethod === void 0 ? void 0 : oldMethod.apply(this, args);
+                return oldMethod?.apply(this, args);
             }
             catch (error) {
                 if (error instanceof Error) {

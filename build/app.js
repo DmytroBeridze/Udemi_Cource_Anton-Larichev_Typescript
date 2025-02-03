@@ -222,14 +222,13 @@ function multyplyOpt(first = 5, second) {
 console.log(multyplyOpt(undefined, 2));
 console.log(multyplyOpt(10));
 function userProPass(user) {
-    var _a;
-    return (_a = user.password) === null || _a === void 0 ? void 0 : _a.test;
+    return user.password?.test;
 }
 function userProPass2(user) {
     return user.password.test; // когда мы уверены, что password точно есть
 }
 function checkFnc(param) {
-    return param !== null && param !== void 0 ? param : "some code"; //если  param ===null или  param ===undefined
+    return param ?? "some code"; //если  param ===null или  param ===undefined
 } //то возвращаем "some code"
 // ---------------------------Упражнение 3
 var Status;
@@ -367,7 +366,7 @@ function getBaseUser2() {
     }
 }
 const nullUser2 = getBaseUser2();
-const nullU2 = nullUser2 === null || nullUser2 === void 0 ? void 0 : nullUser2.name;
+const nullU2 = nullUser2?.name;
 console.log(nullU2);
 // TODO ----приведение типов
 let aCast = 5;

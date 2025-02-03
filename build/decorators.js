@@ -150,7 +150,7 @@ function DecoratorAccessorFnc(target, keyProp, descriptor) {
     const oldDescriptor = descriptor.set;
     descriptor.set = function (data) {
         if (data > 2) {
-            oldDescriptor === null || oldDescriptor === void 0 ? void 0 : oldDescriptor.call(this, data + 2);
+            oldDescriptor?.call(this, data + 2);
         }
         else
             throw new Error("Data >2!!!");
